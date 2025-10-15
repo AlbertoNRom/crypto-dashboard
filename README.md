@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CryptoDash
 
-## Getting Started
+Panel de criptomonedas construido con Next.js, Tailwind y Lightweight Charts. Incluye gráfico OHLC de Bitcoin, listado de mercados en tiempo real, autenticación con Supabase y flujo de donaciones con Stripe.
 
-First, run the development server:
+## Características
+
+- Gráfico de velas (OHLC) para BTC usando `lightweight-charts`.
+- Listado de criptomonedas top con datos de CoinGecko.
+- Tema oscuro/claro y UI moderna con Radix + Shadcn UI.
+- Autenticación (Supabase) y ejemplo de OAuth.
+- Donaciones vía Stripe Checkout (server route y guardado en DB con Drizzle).
+
+## Requisitos
+
+- Node.js 18+ (recomendado 20+)
+- npm, pnpm o yarn
+- (Opcional) Cuenta de Supabase para auth
+- (Opcional) Claves de Stripe para donaciones
+- (Opcional) Base de datos Postgres para Drizzle
+
+## Instalación
+
+```bash
+npm install
+# o
+pnpm install
+```
+
+## Variables de entorno
+
+Crea un archivo `.env.local` en la raíz del proyecto con las variables necesarias. Ejemplo:
+
+```env
+# Supabase (requerido si usas auth)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Stripe (requerido si usas donaciones)
+STRIPE_SECRET_KEY=sk_test_xxx
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
+
+# CoinGecko (opcional, para Pro API en cliente)
+NEXT_PUBLIC_CG_API_KEY=your_cg_pro_key
+
+# Base de datos (opcional, para Drizzle)
+DATABASE_URL=postgres://user:pass@host:5432/dbname
+```
+
+Notas:
+- Las rutas de API de CoinGecko incluidas usan la API pública y no requieren clave.
+- Si falta alguna variable de Stripe o Supabase y accedes a funcionalidades que la usan, el proyecto lanzará errores explicando qué falta.
+
+## Desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre `http://localhost:3000` en tu navegador. Si el puerto 3000 está ocupado, Next.js usará `http://localhost:3001` automáticamente.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Endpoints API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `GET /api/crypto/markets`
+  - Parámetros: `limit` (por defecto `100`), `ids` (opcional, coma-separado)
+  - Ejemplos:
+    - `curl "http://localhost:3000/api/crypto/markets?limit=6"`
+    - `curl "http://localhost:3000/api/crypto/markets?ids=bitcoin,ethereum&limit=2"`
 
-## Learn More
+- `GET /api/crypto/ohlc`
+  - Parámetros: `coinId` (por defecto `bitcoin`), `vs_currency` (por defecto `usd`), `days` (por defecto `30`)
+  - Ejemplo: `curl "http://localhost:3000/api/crypto/ohlc?coinId=bitcoin&vs_currency=usd&days=30"`
 
-To learn more about Next.js, take a look at the following resources:
+- `POST /api/create-payment-intent` (Stripe)
+  - Body JSON: `{ "amount": 10, "currency": "usd", "message": "Gracias!" }`
+  - Requiere `STRIPE_SECRET_KEY` y `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` configurados.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pruebas (Playwright)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Instala los navegadores de Playwright la primera vez:
 
-## Deploy on Vercel
+```bash
+npx playwright install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ejecuta las pruebas:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run test        # modo CLI
+npm run test:ui     # modo UI
+npm run test:headed # con navegador visible
+```
+
+## Scripts útiles
+
+- `npm run build` – compila la app para producción
+- `npm run start` – arranca el servidor en producción
+- `npm run lint` / `npm run format` – lint y formato con Biome
+- `npm run db:generate` / `db:migrate` / `db:studio` – herramientas de Drizzle
+
+## Solución de problemas
+
+- Puerto ocupado: si `3000` está en uso, se arrancará en `3001`.
+- Playwright: error de “Missing browser executable” → `npx playwright install`.
+- Stripe: faltan variables → añade `STRIPE_SECRET_KEY` y `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
+- Supabase: faltan variables → añade `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- CoinGecko: si la API pública limita o falla, el gráfico usa datos de respaldo.
+
+## Créditos
+
+- Datos de mercado y OHLC: [CoinGecko](https://www.coingecko.com)
+- Gráficos: [TradingView Lightweight Charts](https://github.com/tradingview/lightweight-charts)
