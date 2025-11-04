@@ -68,7 +68,8 @@ export const AppNavbar = () => {
 
   const menuItems = [
     { name: "Market", href: "/market", icon: TrendingUp },
-    { name: "Portfolio", href: "/portfolio", icon: Wallet },
+    // Mostrar Portfolio sólo si hay usuario autenticado
+    ...(user ? [{ name: "Portfolio", href: "/portfolio", icon: Wallet }] : []),
   ];
 
   if (!mounted) return null;
@@ -168,7 +169,7 @@ export const AppNavbar = () => {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuContent className="mt-2 w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">

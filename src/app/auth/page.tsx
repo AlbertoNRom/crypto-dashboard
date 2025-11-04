@@ -107,27 +107,12 @@ const Page = () => {
       }
     } catch (error: any) {
       console.error("Error:", error);
-      alert(error.message || "Error en la autenticación");
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
-  const handleGoogleAuth = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/market`,
-        },
-      });
-
-      if (error) throw error;
-    } catch (error: any) {
-      console.error("Error:", error);
-      alert(error.message || "Error en la autenticación con Google");
-    }
-  };
+  // Botón de Google deshabilitado por ahora; se eliminará el handler para evitar warnings.
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,7 +140,7 @@ const Page = () => {
 
           <Card className="w-full">
             <CardContent className="p-6">
-              <div className="flex mb-6 border-b">
+              <div className="flex mb-6">
                 <button
                   type="button"
                   className={`flex-1 py-2 px-4 text-center border-b-2 transition-colors ${
@@ -256,21 +241,20 @@ const Page = () => {
                       : "Crear Cuenta"}
                 </Button>
 
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      o continúa con
-                    </span>
-                  </div>
+                <div className="flex items-center gap-4">
+                  <span aria-hidden className="flex-1 border-t" />
+                  <span className="text-xs uppercase text-muted-foreground">
+                    o continúa con
+                  </span>
+                  <span aria-hidden className="flex-1 border-t" />
                 </div>
 
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={handleGoogleAuth}
+                  disabled
+                  aria-disabled
+                  title="Autenticación con Google próximamente"
                 >
                   <svg
                     className="h-5 w-5 mr-2"
@@ -295,7 +279,7 @@ const Page = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Google
+                  Google (deshabilitado)
                 </Button>
 
                 {state.selected === "login" && (

@@ -23,8 +23,8 @@ const MarketPage = async() => {
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent opacity-75"></div>
               </div>
               <div>
-                <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                  Dashboard Crypto
+                <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
+                  Market
                 </h1>
                 <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent mt-2"></div>
               </div>

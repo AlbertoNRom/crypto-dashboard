@@ -35,7 +35,7 @@ export const HomeHeroMotion = () => {
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent animate-ping opacity-75"></div>
             </div>
             <div className="text-left">
-              <h1 className="text-5xl sm:text-7xl font-bold bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent animate-gradient">
+              <h1 className="text-5xl sm:text-7xl font-bold text-foreground">
                 CryptoDash
               </h1>
               <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent mt-2 animate-pulse"></div>
