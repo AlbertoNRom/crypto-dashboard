@@ -3,11 +3,9 @@
 import {
   LogOut,
   Menu,
-  Moon,
   Settings,
-  Sun,
   TrendingUp,
-  User,
+  User as UserIcon,
   Wallet,
   X,
 } from "lucide-react";
@@ -15,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,34 +24,38 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+type AuthUser = { email: string | null; avatarUrl?: string };
 import { createClient } from "@/lib/supabase/client";
+import { useCursorEffect } from "@/app/providers";
 
 export const AppNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { enabled: cursorEnabled, setEnabled: setCursorEnabled } = useCursorEffect();
 
   useEffect(() => {
     setMounted(true);
 
     // Get initial user
     const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
+      const { data: { user } } = await supabase.auth.getUser();
+      const meta = (user?.user_metadata ?? {}) as Record<string, any>;
+      const avatar = meta.avatar_url ?? meta.picture;
+      setUser(user ? { email: user.email ?? null, avatarUrl: avatar } : null);
     };
 
     getUser();
 
     // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      const u = session?.user;
+      const meta = (u?.user_metadata ?? {}) as Record<string, any>;
+      const avatar = meta.avatar_url ?? meta.picture;
+      setUser(u ? { email: u.email ?? null, avatarUrl: avatar } : null);
     });
 
     return () => subscription.unsubscribe();
@@ -64,7 +67,7 @@ export const AppNavbar = () => {
   };
 
   const menuItems = [
-    { name: "Dashboard", href: "/dashboard", icon: TrendingUp },
+    { name: "Market", href: "/market", icon: TrendingUp },
     { name: "Portfolio", href: "/portfolio", icon: Wallet },
   ];
 
@@ -100,7 +103,10 @@ export const AppNavbar = () => {
           </div>
 
           {/* Desktop navigation */}
-          <div className="hidden sm:flex items-center space-x-2 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <div
+            className="hidden sm:flex items-center space-x-2 animate-fade-in"
+            style={{ animationDelay: "0.2s" }}
+          >
             {menuItems.map((item, index) => (
               <Link
                 key={item.name}
@@ -116,11 +122,31 @@ export const AppNavbar = () => {
           </div>
 
           {/* Right side items */}
-          <div className="flex items-center space-x-3 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            {/* Theme toggle */}
-            <div className="p-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
-              <ThemeSwitch />
-            </div>
+          <div
+            className="flex items-center space-x-3 animate-fade-in"
+            style={{ animationDelay: "0.4s" }}
+          >
+          {/* Theme toggle */}
+          <div className="p-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
+            <ThemeSwitch />
+          </div>
+
+          {/* Cursor effect switch */}
+          <div className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
+            <label
+              htmlFor="cursor-toggle"
+              id="cursor-toggle-label"
+              className="text-sm text-foreground"
+            >
+              Cursor
+            </label>
+            <Switch
+              id="cursor-toggle"
+              checked={cursorEnabled}
+              onCheckedChange={(v) => setCursorEnabled(Boolean(v))}
+              className="h-5 w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
+            />
+          </div>
 
             {/* User menu */}
             {user ? (
@@ -133,8 +159,8 @@ export const AppNavbar = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
                     <Avatar className="h-8 w-8 relative z-10 group-hover:scale-110 transition-transform duration-300">
                       <AvatarImage
-                        src={user.user_metadata?.avatar_url}
-                        alt={user.email}
+                        src={user.avatarUrl || ""}
+                        alt={user.email ?? ""}
                       />
                       <AvatarFallback className="bg-primary/20 text-primary font-semibold">
                         {user.email?.charAt(0).toUpperCase()}
@@ -166,9 +192,12 @@ export const AppNavbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 group">
+              <Button
+                asChild
+                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 group"
+              >
                 <Link href="/auth" className="flex items-center gap-2">
-                  <User className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
+                  <UserIcon className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
                   <span className="font-medium">Iniciar Sesión</span>
                 </Link>
               </Button>
@@ -199,4 +228,4 @@ export const AppNavbar = () => {
       )}
     </nav>
   );
-}
+};

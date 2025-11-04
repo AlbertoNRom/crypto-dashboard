@@ -1,92 +1,104 @@
-export interface CryptoData {
+export interface TickerData {
   id: string;
   symbol: string;
   name: string;
-  image: string;
+  pair: string;
   current_price: number;
-  market_cap: number;
-  market_cap_rank: number;
-  price_change_24h: number;
   price_change_percentage_24h: number;
-  total_volume: number;
   high_24h: number;
   low_24h: number;
-  circulating_supply: number;
-  total_supply: number;
-  max_supply: number;
-  ath: number;
-  ath_change_percentage: number;
-  ath_date: string;
-  atl: number;
-  atl_change_percentage: number;
-  atl_date: string;
-  last_updated: string;
+  volume_24h: number;
 }
 
-export async function fetchTopCryptos(limit: number = 100): Promise<CryptoData[]> {
+function defaultPairs(): string[] {
+  return ['XBTUSD', 'ETHUSD', 'SOLUSD', 'ADAUSD', 'XRPUSD', 'BNBUSD'];
+}
+
+function mapIdToKrakenPair(id: string, vs = 'USD'): string | null {
+  const base = id.toLowerCase();
+  const quote = vs.toUpperCase();
+  switch (base) {
+    case 'bitcoin':
+    case 'btc':
+    case 'xbt':
+      return `XBT${quote}`;
+    case 'ethereum':
+    case 'eth':
+      return `ETH${quote}`;
+    case 'solana':
+    case 'sol':
+      return `SOL${quote}`;
+    case 'cardano':
+    case 'ada':
+      return `ADA${quote}`;
+    case 'xrp':
+      return `XRP${quote}`;
+    case 'binancecoin':
+    case 'bnb':
+      return `BNB${quote}`;
+    default:
+      return null;
+  }
+}
+
+export async function fetchTopCryptos(pairs?: string[]): Promise<TickerData[]> {
   try {
+    const usePairs = (Array.isArray(pairs) && pairs.length > 0 ? pairs : defaultPairs()).join(',');
+    const base = typeof window === 'undefined' ? 'http://localhost:3001' : '';
     const response = await fetch(
-      `/api/crypto/markets?limit=${limit}`,
+      `${base}/api/crypto/markets?pairs=${encodeURIComponent(usePairs)}`,
       {
-        next: { revalidate: 60 }, // Cache for 1 minute
+        next: { revalidate: 60 },
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch crypto data: ${response.statusText}`);
+      throw new Error(`Failed to fetch ticker data: ${response.statusText}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching crypto data:', error);
+    console.error('Error fetching ticker data:', error);
     throw error;
   }
 }
 
-export async function fetchCryptoById(id: string): Promise<CryptoData> {
+export async function fetchCryptoById(id: string): Promise<TickerData | null> {
   try {
+    const pair = mapIdToKrakenPair(id);
+    if (!pair) return null;
+    const base = typeof window === 'undefined' ? 'http://localhost:3001' : '';
     const response = await fetch(
-      `/api/crypto/markets?ids=${id}&limit=1`,
+      `${base}/api/crypto/markets?pairs=${encodeURIComponent(pair)}`,
       {
-        next: { revalidate: 60 }, // Cache for 1 minute
+        next: { revalidate: 60 },
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch crypto data: ${response.statusText}`);
+      throw new Error(`Failed to fetch ticker data: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    return data[0];
+    const data: TickerData[] = await response.json();
+    return data[0] ?? null;
   } catch (error) {
-    console.error('Error fetching crypto data:', error);
+    console.error('Error fetching ticker data:', error);
     throw error;
   }
 }
 
-export async function searchCryptos(query: string): Promise<CryptoData[]> {
+export async function searchCryptos(query: string): Promise<TickerData[]> {
   try {
-    const response = await fetch(
-      `/api/crypto/markets?limit=50`,
-      {
-        next: { revalidate: 300 },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to search crypto data: ${response.statusText}`);
-    }
-
-    const data: CryptoData[] = await response.json();
-    
-    // Filter results based on query
+    const data = await fetchTopCryptos();
+    const q = query.toLowerCase();
     return data.filter(
-      (crypto) =>
-        crypto.name.toLowerCase().includes(query.toLowerCase()) ||
-        crypto.symbol.toLowerCase().includes(query.toLowerCase())
+      (item) =>
+        item.name.toLowerCase().includes(q) ||
+        item.symbol.toLowerCase().includes(q) ||
+        item.pair.toLowerCase().includes(q)
     );
   } catch (error) {
-    console.error('Error searching crypto data:', error);
+    console.error('Error searching ticker data:', error);
     throw error;
   }
 }

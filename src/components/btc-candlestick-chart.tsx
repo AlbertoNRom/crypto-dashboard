@@ -8,7 +8,7 @@ import {
   type UTCTimestamp,
 } from "lightweight-charts";
 import { TrendingUp } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Tipo para datos OHLC de CoinGecko (array de números)
@@ -67,7 +67,7 @@ export const BTCCandlestickChart = () => {
           return (
             Array.isArray(item) &&
             item.length === 5 &&
-            item.every((val) => typeof val === "number" && !isNaN(val))
+            item.every((val) => typeof val === "number" && !Number.isNaN(val))
           );
         })
         .map((item: CoinGeckoOHLCData) => ({
@@ -415,14 +415,14 @@ export const BTCCandlestickChart = () => {
           </div>
           <div className="text-xs text-muted-foreground">
             Powered by{" "}
-            <span className="text-primary font-medium">CryptoDash API</span>
+            <span className="text-primary font-medium">Kraken API</span>
           </div>
         </div>
 
         <div className="text-center">
           <p className="text-xs text-muted-foreground bg-muted/30 px-4 py-2 rounded-full border border-border/30 inline-block">
             📊 <strong>Datos OHLC:</strong> Información histórica desde
-            CoinGecko API • Bitcoin (BTC/USD) • 30 días
+            Kraken API • Bitcoin (BTC/USD) • 30 días
           </p>
         </div>
       </CardContent>

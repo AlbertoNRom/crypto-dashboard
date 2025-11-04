@@ -3,26 +3,18 @@
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { fetchTopCryptos } from '@/lib/crypto-api';
+import { fetchTopCryptos, type TickerData } from '@/lib/crypto-api';
 
-interface CryptoData {
-  id: string;
-  name: string;
-  symbol: string;
-  image: string;
-  current_price: number;
-  price_change_percentage_24h: number;
-  market_cap: number;
-}
+// Usamos el tipo del ticker de Kraken desde la capa lib
 
 export const CryptoPricesSection = () => {
-  const [topCryptos, setTopCryptos] = useState<CryptoData[]>([]);
+  const [topCryptos, setTopCryptos] = useState<TickerData[]>([]);
   const [priceChanges, setPriceChanges] = useState<{[key: string]: 'up' | 'down' | null}>({});
 
   useEffect(() => {
     const loadCryptos = async () => {
       try {
-        const cryptos = await fetchTopCryptos(6);
+        const cryptos = await fetchTopCryptos();
         
         // Detectar cambios de precio para animaciones usando el estado anterior
         setTopCryptos(prevCryptos => {
@@ -88,11 +80,9 @@ export const CryptoPricesSection = () => {
             >
               <CardContent className="p-4">
                 <div className="flex flex-col items-center text-center space-y-3">
-                  <img
-                    src={crypto.image}
-                    alt={crypto.name}
-                    className="w-8 h-8 rounded-full"
-                  />
+                  <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px]">
+                    {crypto.symbol.toUpperCase()}
+                  </div>
                   <div>
                     <h3 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors duration-300">
                       {crypto.name}
@@ -108,7 +98,7 @@ export const CryptoPricesSection = () => {
                        ? 'text-red-600 dark:text-red-400 scale-110'
                        : 'text-foreground'
                    }`}>
-                     ${crypto.current_price.toLocaleString()}
+                   ${(crypto.current_price ?? 0).toLocaleString()}
                    </div>
                   <Badge
                     className={`font-bold shadow-lg transition-all duration-500 ${

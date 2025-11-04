@@ -38,6 +38,7 @@
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.4",
     "drizzle-zod": "^0.8.2",
+    "framer-motion": "^12.23.24",
     "lightweight-charts": "^5.0.8",
     "lucide-react": "^0.534.0",
     "next": "15.4.5",

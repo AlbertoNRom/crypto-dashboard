@@ -1,52 +1,98 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
-import { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, User, TrendingUp } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import { AppNavbar } from '@/components/navbar';
+import { Eye, EyeOff, Lock, Mail, TrendingUp, User } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useReducer } from "react";
+import { AppNavbar } from "@/components/navbar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
+
+// Tipos para el estado y acciones del reducer
+interface AuthState {
+  isVisible: boolean;
+  isLoading: boolean;
+  email: string;
+  password: string;
+  name: string;
+  selected: "login" | "signup";
+}
+
+type AuthAction =
+  | { type: "TOGGLE_VISIBILITY" }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_EMAIL"; payload: string }
+  | { type: "SET_PASSWORD"; payload: string }
+  | { type: "SET_NAME"; payload: string }
+  | { type: "SET_SELECTED"; payload: "login" | "signup" }
+  | { type: "RESET_FORM" };
+
+// Estado inicial
+const initialState: AuthState = {
+  isVisible: false,
+  isLoading: false,
+  email: "",
+  password: "",
+  name: "",
+  selected: "login",
+};
+
+// Reducer function
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+  switch (action.type) {
+    case "TOGGLE_VISIBILITY":
+      return { ...state, isVisible: !state.isVisible };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
+    case "SET_EMAIL":
+      return { ...state, email: action.payload };
+    case "SET_PASSWORD":
+      return { ...state, password: action.payload };
+    case "SET_NAME":
+      return { ...state, name: action.payload };
+    case "SET_SELECTED":
+      return { ...state, selected: action.payload };
+    case "RESET_FORM":
+      return { ...initialState, selected: state.selected };
+    default:
+      return state;
+  }
+};
 
 export const AuthPage = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [selected, setSelected] = useState('login');
+  const [state, dispatch] = useReducer(authReducer, initialState);
   const router = useRouter();
   const supabase = createClient();
 
-  const toggleVisibility = () => setIsVisible(!isVisible);
+  const toggleVisibility = () => dispatch({ type: "TOGGLE_VISIBILITY" });
 
   const handleAuth = async () => {
-    if (!email || !password) {
-      alert('Por favor completa todos los campos');
+    if (!state.email || !state.password) {
+      alert("Por favor completa todos los campos");
       return;
     }
 
-    setIsLoading(true);
+    dispatch({ type: "SET_LOADING", payload: true });
 
     try {
-      if (selected === 'login') {
+      if (state.selected === "login") {
         const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+          email: state.email,
+          password: state.password,
+        });
 
         if (error) throw error;
 
-        router.push('/dashboard');
+        router.push("/market");
       } else {
         const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: state.email,
+          password: state.password,
           options: {
             data: {
-              name,
+              name: state.name,
             },
           },
         });
@@ -54,51 +100,56 @@ export const AuthPage = () => {
         if (error) throw error;
 
         if (data.user && !data.session) {
-          alert('¡Registro exitoso! Revisa tu email para confirmar tu cuenta.');
+          alert("¡Registro exitoso! Revisa tu email para confirmar tu cuenta.");
         } else {
-          router.push('/dashboard');
+          router.push("/market");
         }
       }
     } catch (error: any) {
-      console.error('Error:', error);
-      alert(error.message || 'Error en la autenticación');
+      console.error("Error:", error);
+      alert(error.message || "Error en la autenticación");
     } finally {
-      setIsLoading(false);
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
   const handleGoogleAuth = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/market`,
         },
       });
 
       if (error) throw error;
     } catch (error: any) {
-      console.error('Error:', error);
-      alert(error.message || 'Error en la autenticación con Google');
+      console.error("Error:", error);
+      alert(error.message || "Error en la autenticación con Google");
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
-      
+
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <Link href="/" className="flex items-center justify-center gap-2 text-inherit mb-4">
+            <Link
+              href="/"
+              className="flex items-center justify-center gap-2 text-inherit mb-4"
+            >
               <TrendingUp className="h-10 w-10 text-primary" />
               <span className="text-2xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
                 CryptoDash
               </span>
             </Link>
             <p className="text-foreground-600">
-              {selected === 'login' ? 'Bienvenido de vuelta' : 'Crea tu cuenta gratuita'}
+              {state.selected === "login"
+                ? "Bienvenido de vuelta"
+                : "Crea tu cuenta gratuita"}
             </p>
           </div>
 
@@ -108,69 +159,75 @@ export const AuthPage = () => {
                 <button
                   type="button"
                   className={`flex-1 py-2 px-4 text-center border-b-2 transition-colors ${
-                    selected === 'login'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                    state.selected === "login"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
-                  onClick={() => setSelected('login')}
+                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "login" })}
                 >
                   Iniciar Sesión
                 </button>
                 <button
                   type="button"
                   className={`flex-1 py-2 px-4 text-center border-b-2 transition-colors ${
-                    selected === 'signup'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                    state.selected === "signup"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
-                  onClick={() => setSelected('signup')}
+                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "signup" })}
                 >
                   Registrarse
                 </button>
               </div>
 
               <div className="space-y-4">
-                {selected === 'signup' && (
+                {state.selected === "signup" && (
                   <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium">Nombre completo</label>
+                    <label htmlFor="name" className="text-sm font-medium">
+                      Nombre completo
+                    </label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="name"
                         placeholder="Ingresa tu nombre"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={state.name}
+                        onChange={(e) => dispatch({ type: "SET_NAME", payload: e.target.value })}
                         className="pl-10"
                       />
                     </div>
                   </div>
                 )}
-                
+
                 <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">Email</label>
+                  <label htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="email"
                       placeholder="Ingresa tu email"
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={state.email}
+                      onChange={(e) => dispatch({ type: "SET_EMAIL", payload: e.target.value })}
                       className="pl-10"
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
-                  <label htmlFor="password" className="text-sm font-medium">Contraseña</label>
+                  <label htmlFor="password" className="text-sm font-medium">
+                    Contraseña
+                  </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="password"
                       placeholder="Ingresa tu contraseña"
-                      type={isVisible ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      type={state.isVisible ? "text" : "password"}
+                      value={state.password}
+                      onChange={(e) => dispatch({ type: "SET_PASSWORD", payload: e.target.value })}
                       className="pl-10 pr-10"
                     />
                     <button
@@ -178,7 +235,7 @@ export const AuthPage = () => {
                       type="button"
                       onClick={toggleVisibility}
                     >
-                      {isVisible ? (
+                      {state.isVisible ? (
                         <EyeOff className="h-4 w-4 text-muted-foreground" />
                       ) : (
                         <Eye className="h-4 w-4 text-muted-foreground" />
@@ -190,9 +247,13 @@ export const AuthPage = () => {
                 <Button
                   className="w-full font-semibold"
                   onClick={handleAuth}
-                  disabled={isLoading}
+                  disabled={state.isLoading}
                 >
-                  {isLoading ? 'Cargando...' : (selected === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta')}
+                  {state.isLoading
+                    ? "Cargando..."
+                    : state.selected === "login"
+                      ? "Iniciar Sesión"
+                      : "Crear Cuenta"}
                 </Button>
 
                 <div className="relative">
@@ -211,7 +272,11 @@ export const AuthPage = () => {
                   className="w-full"
                   onClick={handleGoogleAuth}
                 >
-                  <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" aria-label="Google logo">
+                  <svg
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 24 24"
+                    aria-label="Google logo"
+                  >
                     <title>Google</title>
                     <path
                       fill="currentColor"
@@ -233,7 +298,7 @@ export const AuthPage = () => {
                   Google
                 </Button>
 
-                {selected === 'login' && (
+                {state.selected === "login" && (
                   <div className="text-center">
                     <Link href="/auth/reset-password" className="text-primary">
                       ¿Olvidaste tu contraseña?
@@ -245,24 +310,24 @@ export const AuthPage = () => {
           </Card>
 
           <div className="text-center mt-6 text-sm text-muted-foreground">
-            {selected === 'login' ? (
+            {state.selected === "login" ? (
               <>
-                ¿No tienes cuenta?{' '}
+                ¿No tienes cuenta?{" "}
                 <button
                   type="button"
                   className="font-semibold text-primary hover:underline"
-                  onClick={() => setSelected('signup')}
+                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "signup" })}
                 >
                   Regístrate aquí
                 </button>
               </>
             ) : (
               <>
-                ¿Ya tienes cuenta?{' '}
+                ¿Ya tienes cuenta?{" "}
                 <button
                   type="button"
                   className="font-semibold text-primary hover:underline"
-                  onClick={() => setSelected('login')}
+                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "login" })}
                 >
                   Inicia sesión
                 </button>

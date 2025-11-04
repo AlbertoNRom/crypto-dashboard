@@ -74,9 +74,9 @@ export const DonationSuccessPage = () => {
                   variant="outline"
                   className="w-full"
                 >
-                  <a href="/dashboard" className="flex items-center gap-2">
+                  <a href="/market" className="flex items-center gap-2">
                     <ArrowLeft className="h-4 w-4" />
-                    Ir al Dashboard
+                    Ir al Market
                   </a>
                 </Button>
               </div>
