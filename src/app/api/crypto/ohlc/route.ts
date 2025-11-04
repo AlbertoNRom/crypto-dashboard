@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 const KRAKEN_API_BASE = 'https://api.kraken.com/0/public/OHLC';
 // Backoff y mini cache en memoria para reducir rate limits y mejorar rendimiento
@@ -51,7 +52,7 @@ function mapVsCurrencyToKrakenQuote(vs: string): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
     // Compatibilidad: aceptamos coinId/vs_currency/days y también pair/interval/since
     const coinId = searchParams.get('coinId');
     const vsCurrency = searchParams.get('vs_currency');

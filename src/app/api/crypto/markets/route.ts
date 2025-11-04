@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 const KRAKEN_TICKER_API = 'https://api.kraken.com/0/public/Ticker';
 // Backoff y mini cache en memoria para reducir rate limits
@@ -44,7 +45,7 @@ function mapMetaForPair(pair: string) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
     // Usamos Kraken Ticker con lista de pares (por defecto top USD)
     const pairsParam = searchParams.get('pairs');
     const defaultPairs = ['XBTUSD', 'ETHUSD', 'SOLUSD', 'ADAUSD', 'XRPUSD', 'BNBUSD'];

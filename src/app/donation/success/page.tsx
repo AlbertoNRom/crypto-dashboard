@@ -1,40 +1,19 @@
-'use client';
+import { ArrowLeft, CheckCircle, Heart, Home } from "lucide-react";
+import { AppNavbar } from "@/components/navbar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, Heart, Home, ArrowLeft } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { AppNavbar } from '@/components/navbar';
+interface PageProps {
+  searchParams?: { session_id?: string };
+}
 
-export const DonationSuccessPage = () => {
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session_id');
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Here you could verify the payment with Stripe if needed
-    setIsLoading(false);
-  }, [sessionId]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <AppNavbar />
-        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-foreground-600">Verificando tu donación...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+const Page = ({ searchParams }: PageProps) => {
+  const sessionId = searchParams?.session_id ?? null;
 
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
-      
+
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="w-full max-w-md">
           <Card className="text-center">
@@ -47,33 +26,29 @@ export const DonationSuccessPage = () => {
                   ¡Donación Exitosa!
                 </h1>
                 <p className="text-foreground-600">
-                  Gracias por apoyar el desarrollo de CryptoDash. Tu contribución nos ayuda a seguir mejorando la plataforma.
+                  Gracias por apoyar el desarrollo de CryptoDash. Tu
+                  contribución nos ayuda a seguir mejorando la plataforma.
                 </p>
               </div>
 
               <div className="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg mb-6">
                 <div className="flex items-center justify-center gap-2 text-primary">
                   <Heart className="h-5 w-5" />
-                  <span className="font-semibold">Tu apoyo significa mucho para nosotros</span>
+                  <span className="font-semibold">
+                    Tu apoyo significa mucho para nosotros
+                  </span>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Button
-                  asChild
-                  className="w-full"
-                >
+                <Button asChild className="w-full">
                   <a href="/" className="flex items-center gap-2">
                     <Home className="h-4 w-4" />
                     Volver al Inicio
                   </a>
                 </Button>
-                
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full"
-                >
+
+                <Button asChild variant="outline" className="w-full">
                   <a href="/market" className="flex items-center gap-2">
                     <ArrowLeft className="h-4 w-4" />
                     Ir al Market
@@ -96,4 +71,4 @@ export const DonationSuccessPage = () => {
   );
 };
 
-export default DonationSuccessPage;
+export default Page;

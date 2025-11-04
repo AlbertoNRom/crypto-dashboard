@@ -61,7 +61,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   }
 };
 
-export const AuthPage = () => {
+const Page = () => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const router = useRouter();
   const supabase = createClient();
@@ -340,4 +340,4 @@ export const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+export default Page;

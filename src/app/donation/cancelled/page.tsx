@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { XCircle, Home, ArrowLeft, Heart } from 'lucide-react';
 import { AppNavbar } from '@/components/navbar';
 
-export const DonationCancelledPage = () => {
+const Page = () => {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
@@ -69,4 +69,4 @@ export const DonationCancelledPage = () => {
   );
 };
 
-export default DonationCancelledPage;
+export default Page;
