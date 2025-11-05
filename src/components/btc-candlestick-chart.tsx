@@ -22,25 +22,18 @@ interface CandlestickData {
 }
 
 export const BTCCandlestickChart = () => {
-  console.log('🚀 BTCCandlestickChart component renderizado');
-  
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [priceChange, setPriceChange] = useState<number | null>(null);
-  
-  console.log('📊 Estado actual isLoading:', isLoading);
 
   const fetchBitcoinData = async (): Promise<CandlestickData[]> => {
     try {
-      console.log('🔄 Iniciando fetch de datos de Bitcoin...');
       const response = await fetch(
         "/api/crypto/ohlc?coinId=bitcoin&vs_currency=usd&days=150"
       );
-
-      console.log('📡 Respuesta recibida:', response.status, response.statusText);
 
       if (!response.ok) {
         throw new Error(
@@ -169,6 +162,10 @@ export const BTCCandlestickChart = () => {
             borderColor: "hsl(var(--border))",
             timeVisible: true,
             secondsVisible: false,
+            lockVisibleTimeRangeOnResize: true,
+            rightBarStaysOnScroll: true,
+            fixLeftEdge: true,
+            fixRightEdge: true,
           },
         });
 

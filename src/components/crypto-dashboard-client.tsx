@@ -314,7 +314,7 @@ export const CryptoDashboardClient = () => {
                         )}
                       </td>
                       <td className="p-4 text-right">
-                        <Badge className={`${(crypto.price_change_percentage_24h || 0) >= 0 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'} text-xs px-2 py-1 font-medium`}>
+                        <Badge className={`${(crypto.price_change_percentage_24h || 0) >= 0 ? 'bg-transparent text-green-700 dark:text-green-400 border border-green-300 dark:border-green-800' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'} text-xs px-2 py-1 font-medium`}>
                           {(crypto.price_change_percentage_24h || 0) >= 0 ? '+' : ''}
                           {(crypto.price_change_percentage_24h || 0).toFixed(2)}%
                         </Badge>
