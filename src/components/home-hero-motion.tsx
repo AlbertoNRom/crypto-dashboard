@@ -25,13 +25,13 @@ export const HomeHeroMotion = () => {
         <div className="space-y-8">
           {/* Logo and Title */}
           <motion.div
-            className="flex items-center justify-center gap-6 mb-8"
+            className="flex items-center justify-center gap-3 sm:gap-6 mb-8 min-w-0"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}
           >
-            <div className="relative p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 backdrop-blur-sm">
-              <TrendingUp className="h-16 w-16 text-primary animate-pulse" />
+            <div className="relative p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 backdrop-blur-sm">
+              <TrendingUp className="h-10 w-10 sm:h-16 sm:w-16 text-primary animate-pulse" />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent animate-ping opacity-75"></div>
             </div>
             <div className="text-left">
