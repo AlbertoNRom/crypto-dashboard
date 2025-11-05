@@ -370,7 +370,7 @@ export const BTCCandlestickChart = () => {
         <div className="text-center">
           <p className="text-xs text-muted-foreground bg-muted/30 px-4 py-2 rounded-full border border-border/30 inline-block">
             📊 <strong>Datos OHLC:</strong> Información histórica desde
-            Kraken API • Bitcoin (BTC/USD) • 30 días
+            Kraken API • Bitcoin (BTC/USD) • 150 días
           </p>
         </div>
       </CardContent>
