@@ -103,11 +103,11 @@ export const CryptoPricesSection = () => {
                   <Badge
                     className={`font-bold shadow-lg transition-all duration-500 ${
                       crypto.price_change_percentage_24h >= 0
-                        ? `bg-green-500 text-white ${
-                            priceChanges[crypto.id] === 'up' ? 'animate-bounce bg-green-400 shadow-green-400/70' : ''
+                        ? `bg-transparent text-green-700 dark:text-green-400 border border-green-300 dark:border-green-800 ${
+                            priceChanges[crypto.id] === 'up' ? 'animate-bounce shadow-green-400/70' : ''
                           }`
-                        : `bg-red-500 text-white ${
-                            priceChanges[crypto.id] === 'down' ? 'animate-bounce bg-red-400 shadow-red-400/70' : ''
+                        : `bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800 ${
+                            priceChanges[crypto.id] === 'down' ? 'animate-bounce shadow-red-400/70' : ''
                           }`
                     }`}
                   >

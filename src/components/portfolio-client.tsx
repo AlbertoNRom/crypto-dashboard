@@ -229,7 +229,7 @@ export const PortfolioClient = ({ initialHoldings }: PortfolioClientProps) => {
               <div className="rounded-lg border bg-muted/30 p-4">
                 <div className="text-xs text-muted-foreground">Variación vs día anterior</div>
                 <div
-                  className={`mt-1 text-2xl font-bold ${summary.diff >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                  className={`mt-1 text-2xl font-bold ${summary.diff >= 0 ? "text-emerald-800 dark:text-emerald-300" : "text-red-700 dark:text-red-400"}`}
                   suppressHydrationWarning
                 >
                   {summary.diff >= 0 ? "+" : "-"}${Math.abs(summary.diff).toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -454,7 +454,7 @@ export const PortfolioClient = ({ initialHoldings }: PortfolioClientProps) => {
                         <td className="p-4 text-right">
                           {m ? (
                             <Badge
-                              className={`${(m.price_change_percentage_24h || 0) >= 0 ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800" : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800"} px-2 py-1`}
+                              className={`${(m.price_change_percentage_24h || 0) >= 0 ? "bg-transparent text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800" : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800"} text-xs px-2 py-1`}
                             >
                               {(m.price_change_percentage_24h || 0) >= 0
                                 ? "+"

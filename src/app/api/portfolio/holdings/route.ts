@@ -40,9 +40,16 @@ export async function GET(req: NextRequest) {
     if (!user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const u = await getOrCreateUserByEmail(user.email);
-    const p = await getOrCreateDefaultPortfolio(u.id);
+    let pId: string | null = null;
+    try {
+      const u = await getOrCreateUserByEmail(user.email);
+      const p = await getOrCreateDefaultPortfolio(u.id);
+      pId = p.id;
+    } catch (dbErr) {
+      // En producción, si la base de datos no está migrada, devolvemos lista vacía para no romper la UI
+      console.error('GET /api/portfolio/holdings DB error:', dbErr);
+      return NextResponse.json({ portfolioId: null, holdings: [] }, { status: 200 });
+    }
 
     const { searchParams } = new URL(req.url);
     const limit = Math.min(30, Number(searchParams.get('limit') ?? 30));
@@ -50,10 +57,10 @@ export async function GET(req: NextRequest) {
     const rows = await db
       .select()
       .from(holdings)
-      .where(eq(holdings.portfolioId, p.id));
+      .where(eq(holdings.portfolioId, pId!));
 
     // Enforce 30-row limit at response level
-    return NextResponse.json({ portfolioId: p.id, holdings: rows.slice(0, limit) });
+    return NextResponse.json({ portfolioId: pId, holdings: rows.slice(0, limit) });
   } catch (err) {
     console.error('GET /api/portfolio/holdings error:', err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -146,7 +146,7 @@ export const CryptoDashboardClient = () => {
               )}
             </div>
             <div className="flex items-center gap-1 mt-1">
-              <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 text-xs px-2 py-0">
+              <Badge className="bg-transparent text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-xs px-2 py-0">
                 {avgChange24h >= 0 ? '+' : ''}{avgChange24h.toFixed(2)}%
               </Badge>
             </div>
@@ -250,7 +250,7 @@ export const CryptoDashboardClient = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">24h</span>
-                    <Badge className={`${(crypto.price_change_percentage_24h || 0) >= 0 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'} text-xs px-2 py-1 font-medium`}>
+                    <Badge className={`${(crypto.price_change_percentage_24h || 0) >= 0 ? 'bg-transparent text-green-700 dark:text-green-400 border border-green-300 dark:border-green-800' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'} text-xs px-2 py-1 font-medium`}>
                       {(crypto.price_change_percentage_24h || 0) >= 0 ? '+' : ''}
                       {(crypto.price_change_percentage_24h || 0).toFixed(2)}%
                     </Badge>
