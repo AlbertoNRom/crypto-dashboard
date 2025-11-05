@@ -132,12 +132,13 @@ export const AppNavbar = () => {
             <label
               htmlFor="cursor-toggle"
               id="cursor-toggle-label"
-              className="text-sm text-foreground"
+              className="hidden sm:inline text-sm text-foreground"
             >
               Cursor
             </label>
             <Switch
               id="cursor-toggle"
+              aria-label="Cursor"
               checked={cursorEnabled}
               onCheckedChange={(v) => setCursorEnabled(Boolean(v))}
               className="h-5 w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
@@ -188,7 +189,11 @@ export const AppNavbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild variant="contrast" size="sm" className="font-semibold active:scale-95">
+              <Button
+                asChild
+                variant="contrast"
+                className="font-semibold active:scale-95 shrink-0 h-10 px-4 sm:h-8 sm:px-3"
+              >
                 <Link href="/auth" className="flex items-center gap-2">
                   <UserIcon className="h-4 w-4" />
                   <span className="font-semibold">Iniciar Sesión</span>
