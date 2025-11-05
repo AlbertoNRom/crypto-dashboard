@@ -77,7 +77,7 @@ export const AppNavbar = () => {
 
   return (
     <nav className="w-full border-b border-primary/20 bg-gradient-to-r from-background via-background to-primary/5 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and brand */}
           <div className="flex items-center">
@@ -121,18 +121,18 @@ export const AppNavbar = () => {
           </div>
 
           {/* Right side items */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2 sm:gap-3">
           {/* Theme toggle */}
           <div className="p-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
             <ThemeSwitch />
           </div>
 
-          {/* Cursor effect switch */}
-          <div className="flex items-center gap-2 sm:gap-3 px-1 py-0.5 sm:px-2 sm:py-1 rounded-md hover:bg-primary/10 transition-all duration-300">
+          {/* Cursor effect switch (hidden on mobile) */}
+          <div className="hidden sm:flex items-center gap-3 px-2 py-1 rounded-md hover:bg-primary/10 transition-all duration-300">
             <label
               htmlFor="cursor-toggle"
               id="cursor-toggle-label"
-              className="hidden sm:inline text-sm text-foreground"
+              className="text-sm text-foreground"
             >
               Cursor
             </label>
@@ -141,7 +141,7 @@ export const AppNavbar = () => {
               aria-label="Cursor"
               checked={cursorEnabled}
               onCheckedChange={(v) => setCursorEnabled(Boolean(v))}
-              className="h-4 w-8 sm:h-5 sm:w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
+              className="h-5 w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
             />
           </div>
 
@@ -192,11 +192,11 @@ export const AppNavbar = () => {
               <Button
                 asChild
                 variant="contrast"
-                className="font-semibold active:scale-95 shrink-0 h-10 px-4 sm:h-8 sm:px-3"
+                className="font-semibold active:scale-95 shrink-0 w-10 h-10 px-0 sm:w-auto sm:h-8 sm:px-3"
               >
-                <Link href="/auth" className="flex items-center gap-2">
+                <Link href="/auth" className="flex items-center gap-2 justify-center">
                   <UserIcon className="h-4 w-4" />
-                  <span className="font-semibold">Iniciar Sesión</span>
+                  <span className="hidden sm:inline font-semibold">Iniciar Sesión</span>
                 </Link>
               </Button>
             )}
