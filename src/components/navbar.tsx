@@ -10,11 +10,10 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import SplashCursor from "@/components/ui/splash-cursor";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useCursorEffect } from "@/app/providers";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,9 +24,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-type AuthUser = { email: string | null; avatarUrl?: string };
+import SplashCursor from "@/components/ui/splash-cursor";
+import { Switch } from "@/components/ui/switch";
 import { createClient } from "@/lib/supabase/client";
-import { useCursorEffect } from "@/app/providers";
+
+type AuthUser = { email: string | null; avatarUrl?: string };
 
 export const AppNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,14 +37,16 @@ export const AppNavbar = () => {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const supabase = createClient();
-  const { enabled: cursorEnabled, setEnabled: setCursorEnabled } = useCursorEffect();
+  const { enabled: cursorEnabled, setEnabled: setCursorEnabled } =
+    useCursorEffect();
 
   useEffect(() => {
     setMounted(true);
 
-    // Get initial user
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const meta = (user?.user_metadata ?? {}) as Record<string, any>;
       const avatar = meta.avatar_url ?? meta.picture;
       setUser(user ? { email: user.email ?? null, avatarUrl: avatar } : null);
@@ -51,8 +54,9 @@ export const AppNavbar = () => {
 
     getUser();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
       const u = session?.user;
       const meta = (u?.user_metadata ?? {}) as Record<string, any>;
       const avatar = meta.avatar_url ?? meta.picture;
@@ -69,7 +73,6 @@ export const AppNavbar = () => {
 
   const menuItems = [
     { name: "Market", href: "/market", icon: TrendingUp },
-    // Mostrar Portfolio sólo si hay usuario autenticado
     ...(user ? [{ name: "Portfolio", href: "/portfolio", icon: Wallet }] : []),
   ];
 
@@ -79,8 +82,7 @@ export const AppNavbar = () => {
     <nav className="w-full border-b border-primary/20 bg-gradient-to-r from-background via-background to-primary/5 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo and brand */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-1 min-w-0">
             <Button
               variant="ghost"
               size="icon"
@@ -93,18 +95,17 @@ export const AppNavbar = () => {
                 <Menu className="h-5 w-5 text-primary" />
               )}
             </Button>
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link
+              href="/"
+              className="flex items-center gap-2 sm:gap-3 group min-w-0"
+            >
               <div className="relative">
-                <TrendingUp className="h-8 w-8 text-primary group-hover:animate-pulse transition-all duration-300" />
+                <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-primary group-hover:animate-pulse transition-all duration-300" />
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg group-hover:blur-xl transition-all duration-300"></div>
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
-                CryptoDash
-              </span>
             </Link>
           </div>
 
-          {/* Desktop navigation */}
           <div className="hidden sm:flex items-center space-x-2">
             {menuItems.map((item, index) => (
               <Link
@@ -120,32 +121,27 @@ export const AppNavbar = () => {
             ))}
           </div>
 
-          {/* Right side items */}
           <div className="flex items-center gap-2 sm:gap-3">
-          {/* Theme toggle */}
-          <div className="p-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
-            <ThemeSwitch />
-          </div>
+            <div className="p-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
+              <ThemeSwitch />
+            </div>
+            <div className="sm:flex items-center gap-3 px-2 py-1 rounded-md hover:bg-primary/10 transition-all duration-300">
+              <label
+                htmlFor="cursor-toggle"
+                id="cursor-toggle-label"
+                className="hidden text-sm text-foreground"
+              >
+                Cursor
+              </label>
+              <Switch
+                id="cursor-toggle"
+                aria-label="Cursor"
+                checked={cursorEnabled}
+                onCheckedChange={(v) => setCursorEnabled(Boolean(v))}
+                className="h-5 w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
+              />
+            </div>
 
-          {/* Cursor effect switch (hidden on mobile) */}
-          <div className="hidden sm:flex items-center gap-3 px-2 py-1 rounded-md hover:bg-primary/10 transition-all duration-300">
-            <label
-              htmlFor="cursor-toggle"
-              id="cursor-toggle-label"
-              className="text-sm text-foreground"
-            >
-              Cursor
-            </label>
-            <Switch
-              id="cursor-toggle"
-              aria-label="Cursor"
-              checked={cursorEnabled}
-              onCheckedChange={(v) => setCursorEnabled(Boolean(v))}
-              className="h-5 w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
-            />
-          </div>
-
-            {/* User menu */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -165,7 +161,11 @@ export const AppNavbar = () => {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="mt-2 w-56" align="end" forceMount>
+                <DropdownMenuContent
+                  className="mt-2 w-56"
+                  align="end"
+                  forceMount
+                >
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
@@ -194,9 +194,14 @@ export const AppNavbar = () => {
                 variant="contrast"
                 className="font-semibold active:scale-95 shrink-0 w-10 h-10 px-0 sm:w-auto sm:h-8 sm:px-3"
               >
-                <Link href="/auth" className="flex items-center gap-2 justify-center">
+                <Link
+                  href="/auth"
+                  className="flex items-center gap-2 justify-center"
+                >
                   <UserIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline font-semibold">Iniciar Sesión</span>
+                  <span className="hidden sm:inline font-semibold">
+                    Iniciar Sesión
+                  </span>
                 </Link>
               </Button>
             )}
@@ -204,7 +209,6 @@ export const AppNavbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isMenuOpen && (
         <div className="sm:hidden animate-fade-in">
           <div className="relative px-4 pt-4 pb-6 space-y-2 bg-gradient-to-b from-background to-primary/5 border-t border-primary/20 backdrop-blur-xl overflow-hidden">
