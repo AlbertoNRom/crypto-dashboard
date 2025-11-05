@@ -23,6 +23,38 @@ export const CryptoDashboardClient = () => {
 
   const pairs = useMemo(() => BASES.map(b => `${b.base}${quote}`), [quote]);
 
+  // Formateador de moneda dependiente de la selección (USD/EUR)
+  const formatCurrency = useMemo(() => {
+    const locale = 'es-ES';
+    const sanitizeUsd = (str: string) => str.replace(/US\$/g, '$');
+    return (value: number | undefined | null) => {
+      const num = typeof value === 'number' ? value : 0;
+      const formatted = new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: quote,
+        maximumFractionDigits: 2,
+      }).format(num);
+      return quote === 'USD' ? sanitizeUsd(formatted) : formatted;
+    };
+  }, [quote]);
+
+  // Formateador compacto para grandes cantidades (ej. volumen 24h)
+  const formatCurrencyCompact = useMemo(() => {
+    const locale = 'es-ES';
+    const sanitizeUsd = (str: string) => str.replace(/US\$/g, '$');
+    return (value: number | undefined | null) => {
+      const num = typeof value === 'number' ? value : 0;
+      const formatted = new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: quote,
+        maximumFractionDigits: 1,
+        notation: 'compact',
+        compactDisplay: 'short',
+      }).format(num);
+      return quote === 'USD' ? sanitizeUsd(formatted) : formatted;
+    };
+  }, [quote]);
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -53,8 +85,8 @@ export const CryptoDashboardClient = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
       {/* Controles */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Badge className="bg-primary/10 text-primary border-primary/20 px-3 py-1 text-sm">Moneda</Badge>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-muted-foreground">Moneda</span>
           <div role="tablist" aria-label="Seleccionar moneda" className="inline-flex rounded-lg border border-muted/30 overflow-hidden">
             {(['USD','EUR'] as const).map((q) => (
               <button
@@ -63,20 +95,16 @@ export const CryptoDashboardClient = () => {
                 type="button"
                 aria-selected={quote === q}
                 onClick={() => setQuote(q)}
-                className={`px-3 py-1 text-sm ${quote === q ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/40'}`}
+                className={`px-3 py-1 text-sm rounded-md transition-all ${quote === q ? 'bg-primary/20 text-primary border border-primary hover:bg-primary/30 active:scale-95' : 'text-muted-foreground hover:bg-muted/40 active:scale-95'}`}
               >
                 {q}
               </button>
             ))}
           </div>
         </div>
-        <div className="text-sm text-muted-foreground">Pairs: {pairs.join(', ')}</div>
       </div>
 
-      {/* Estado de carga / error */}
-      {loading && (
-        <div className="text-sm text-muted-foreground mb-4">Cargando datos…</div>
-      )}
+      {/* Estado de error */}
       {error && (
         <div role="alert" className="text-sm text-red-600 dark:text-red-400 mb-4">{error}</div>
       )}
@@ -91,7 +119,13 @@ export const CryptoDashboardClient = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="text-2xl font-bold text-foreground">{cryptos.length.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-foreground">
+              {loading ? (
+                <div aria-hidden className="h-7 w-16 rounded bg-muted animate-pulse" />
+              ) : (
+                cryptos.length.toLocaleString()
+              )}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">Activos disponibles</p>
           </CardContent>
         </Card>
@@ -104,7 +138,13 @@ export const CryptoDashboardClient = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="text-2xl font-bold text-foreground">${avgPrice.toLocaleString()}</div>
+            <div suppressHydrationWarning className="text-2xl font-bold text-foreground">
+              {loading ? (
+                <div aria-hidden className="h-7 w-28 rounded bg-muted animate-pulse" />
+              ) : (
+                formatCurrency(avgPrice)
+              )}
+            </div>
             <div className="flex items-center gap-1 mt-1">
               <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 text-xs px-2 py-0">
                 {avgChange24h >= 0 ? '+' : ''}{avgChange24h.toFixed(2)}%
@@ -121,7 +161,13 @@ export const CryptoDashboardClient = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="text-2xl font-bold text-foreground">${(totalVolume24h / 1e6).toFixed(0)}M</div>
+            <div suppressHydrationWarning className="text-2xl font-bold text-foreground">
+              {loading ? (
+                <div aria-hidden className="h-7 w-36 rounded bg-muted animate-pulse" />
+              ) : (
+                formatCurrencyCompact(totalVolume24h)
+              )}
+            </div>
             <div className="flex items-center gap-1 mt-1">
               <Badge className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800 text-xs px-2 py-0">
                 {avgChange24h >= 0 ? '+' : ''}{avgChange24h.toFixed(2)}%
@@ -184,11 +230,23 @@ export const CryptoDashboardClient = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Precio</span>
-                    <span className="text-lg font-bold text-foreground">${crypto.current_price?.toLocaleString() || '0'}</span>
+                    <span suppressHydrationWarning className="text-lg font-bold text-foreground">
+                      {loading ? (
+                        <span aria-hidden className="inline-block h-5 w-24 rounded bg-muted animate-pulse" />
+                      ) : (
+                        formatCurrency(crypto.current_price)
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Volumen 24h</span>
-                    <span className="text-sm font-medium text-foreground">{(crypto.volume_24h / 1e6).toFixed(0)}M</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {loading ? (
+                        <span aria-hidden className="inline-block h-4 w-10 rounded bg-muted animate-pulse" />
+                      ) : (
+                        (crypto.volume_24h / 1e6).toFixed(0) + 'M'
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">24h</span>
@@ -248,8 +306,12 @@ export const CryptoDashboardClient = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="p-4 text-right">
-                        <span className="font-mono text-foreground font-semibold inline-block">${crypto.current_price?.toLocaleString() || '0'}</span>
+                      <td className="p-4 text-right" suppressHydrationWarning>
+                        {loading ? (
+                          <span aria-hidden className="inline-block h-5 w-24 rounded bg-muted animate-pulse" />
+                        ) : (
+                          <span className="font-mono text-foreground font-semibold inline-block">{formatCurrency(crypto.current_price)}</span>
+                        )}
                       </td>
                       <td className="p-4 text-right">
                         <Badge className={`${(crypto.price_change_percentage_24h || 0) >= 0 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'} text-xs px-2 py-1 font-medium`}>
@@ -257,8 +319,20 @@ export const CryptoDashboardClient = () => {
                           {(crypto.price_change_percentage_24h || 0).toFixed(2)}%
                         </Badge>
                       </td>
-                      <td className="p-4 text-right font-mono text-foreground font-medium">${crypto.high_24h?.toLocaleString() || '0'}</td>
-                      <td className="p-4 text-right font-mono text-foreground font-medium">${crypto.low_24h?.toLocaleString() || '0'}</td>
+                      <td className="p-4 text-right font-mono text-foreground font-medium" suppressHydrationWarning>
+                        {loading ? (
+                          <span aria-hidden className="inline-block h-5 w-20 rounded bg-muted animate-pulse" />
+                        ) : (
+                          formatCurrency(crypto.high_24h)
+                        )}
+                      </td>
+                      <td className="p-4 text-right font-mono text-foreground font-medium" suppressHydrationWarning>
+                        {loading ? (
+                          <span aria-hidden className="inline-block h-5 w-20 rounded bg-muted animate-pulse" />
+                        ) : (
+                          formatCurrency(crypto.low_24h)
+                        )}
+                      </td>
                       <td className="p-4 text-right font-mono text-foreground font-medium">{(crypto.volume_24h / 1e6).toFixed(0)}M</td>
                     </tr>
                   ))}

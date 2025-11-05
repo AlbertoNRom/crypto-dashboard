@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import SplashCursor from "@/components/ui/splash-cursor";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -79,7 +80,7 @@ export const AppNavbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and brand */}
-          <div className="flex items-center animate-fade-in">
+          <div className="flex items-center">
             <Button
               variant="ghost"
               size="icon"
@@ -104,10 +105,7 @@ export const AppNavbar = () => {
           </div>
 
           {/* Desktop navigation */}
-          <div
-            className="hidden sm:flex items-center space-x-2 animate-fade-in"
-            style={{ animationDelay: "0.2s" }}
-          >
+          <div className="hidden sm:flex items-center space-x-2">
             {menuItems.map((item, index) => (
               <Link
                 key={item.name}
@@ -123,10 +121,7 @@ export const AppNavbar = () => {
           </div>
 
           {/* Right side items */}
-          <div
-            className="flex items-center space-x-3 animate-fade-in"
-            style={{ animationDelay: "0.4s" }}
-          >
+          <div className="flex items-center space-x-3">
           {/* Theme toggle */}
           <div className="p-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
             <ThemeSwitch />
@@ -193,13 +188,10 @@ export const AppNavbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button
-                asChild
-                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 group"
-              >
+              <Button asChild variant="contrast" size="sm" className="font-semibold active:scale-95">
                 <Link href="/auth" className="flex items-center gap-2">
-                  <UserIcon className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
-                  <span className="font-medium">Iniciar Sesión</span>
+                  <UserIcon className="h-4 w-4" />
+                  <span className="font-semibold">Iniciar Sesión</span>
                 </Link>
               </Button>
             )}
@@ -210,12 +202,15 @@ export const AppNavbar = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="sm:hidden animate-fade-in">
-          <div className="px-4 pt-4 pb-6 space-y-2 bg-gradient-to-b from-background to-primary/5 border-t border-primary/20 backdrop-blur-xl">
+          <div className="relative px-4 pt-4 pb-6 space-y-2 bg-gradient-to-b from-background to-primary/5 border-t border-primary/20 backdrop-blur-xl overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 z-10">
+              <SplashCursor TRANSPARENT={true} />
+            </div>
             {menuItems.map((item, index) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="flex items-center gap-3 px-4 py-3 text-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-all duration-300 group relative overflow-hidden"
+                className="flex items-center gap-3 px-4 py-3 text-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-all duration-300 group relative overflow-hidden z-20"
                 onClick={() => setIsMenuOpen(false)}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >

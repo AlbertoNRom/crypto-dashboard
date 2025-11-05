@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { createContext, useContext, useEffect, useState } from "react";
 import SplashCursor from "@/components/ui/splash-cursor";
 
 interface CursorEffectContextValue {
@@ -9,7 +9,9 @@ interface CursorEffectContextValue {
   setEnabled: (v: boolean) => void;
 }
 
-const CursorEffectContext = createContext<CursorEffectContextValue | null>(null);
+const CursorEffectContext = createContext<CursorEffectContextValue | null>(
+  null
+);
 
 export const useCursorEffect = () => {
   const ctx = useContext(CursorEffectContext);
@@ -42,7 +44,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <CursorEffectContext.Provider value={{ enabled, setEnabled }}>
         {children}
         {mounted && enabled && (
-          <div className="pointer-events-none fixed inset-0 z-10">
+          <div className="pointer-events-none fixed inset-0 z-10 sm:block">
             <SplashCursor key={enabled ? "on" : "off"} TRANSPARENT={true} />
           </div>
         )}

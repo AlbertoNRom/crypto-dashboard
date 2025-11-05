@@ -3,6 +3,7 @@
 import { Eye, EyeOff, Lock, Mail, TrendingUp, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useReducer } from "react";
 import { AppNavbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 };
 
 const Page = () => {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [state, dispatch] = useReducer(authReducer, initialState);
   const router = useRouter();
   const supabase = createClient();
@@ -120,16 +123,19 @@ const Page = () => {
 
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="w-full max-w-md">
-          {/* Logo */}
+          {/* Encabezado / Logo */}
           <div className="text-center mb-8">
             <Link
               href="/"
               className="flex items-center justify-center gap-2 text-inherit mb-4"
             >
-              <TrendingUp className="h-10 w-10 text-primary" />
-              <span className="text-2xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <TrendingUp
+                className="h-10 w-10 text-primary"
+                aria-hidden="true"
+              />
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
                 CryptoDash
-              </span>
+              </h1>
             </Link>
             <p className="text-foreground-600">
               {state.selected === "login"
@@ -140,26 +146,38 @@ const Page = () => {
 
           <Card className="w-full">
             <CardContent className="p-6">
-              <div className="flex mb-6">
+              <div
+                className="flex mb-6"
+                role="tablist"
+                aria-label="Seleccionar acción"
+              >
                 <button
                   type="button"
+                  role="tab"
                   className={`flex-1 py-2 px-4 text-center border-b-2 transition-colors ${
                     state.selected === "login"
                       ? "border-primary text-primary"
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
-                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "login" })}
+                  aria-selected={state.selected === "login"}
+                  onClick={() =>
+                    dispatch({ type: "SET_SELECTED", payload: "login" })
+                  }
                 >
                   Iniciar Sesión
                 </button>
                 <button
                   type="button"
+                  role="tab"
                   className={`flex-1 py-2 px-4 text-center border-b-2 transition-colors ${
                     state.selected === "signup"
                       ? "border-primary text-primary"
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
-                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "signup" })}
+                  aria-selected={state.selected === "signup"}
+                  onClick={() =>
+                    dispatch({ type: "SET_SELECTED", payload: "signup" })
+                  }
                 >
                   Registrarse
                 </button>
@@ -177,7 +195,12 @@ const Page = () => {
                         id="name"
                         placeholder="Ingresa tu nombre"
                         value={state.name}
-                        onChange={(e) => dispatch({ type: "SET_NAME", payload: e.target.value })}
+                        onChange={(e) =>
+                          dispatch({
+                            type: "SET_NAME",
+                            payload: e.target.value,
+                          })
+                        }
                         className="pl-10"
                       />
                     </div>
@@ -195,7 +218,9 @@ const Page = () => {
                       placeholder="Ingresa tu email"
                       type="email"
                       value={state.email}
-                      onChange={(e) => dispatch({ type: "SET_EMAIL", payload: e.target.value })}
+                      onChange={(e) =>
+                        dispatch({ type: "SET_EMAIL", payload: e.target.value })
+                      }
                       className="pl-10"
                     />
                   </div>
@@ -212,7 +237,12 @@ const Page = () => {
                       placeholder="Ingresa tu contraseña"
                       type={state.isVisible ? "text" : "password"}
                       value={state.password}
-                      onChange={(e) => dispatch({ type: "SET_PASSWORD", payload: e.target.value })}
+                      onChange={(e) =>
+                        dispatch({
+                          type: "SET_PASSWORD",
+                          payload: e.target.value,
+                        })
+                      }
                       className="pl-10 pr-10"
                     />
                     <button
@@ -229,16 +259,26 @@ const Page = () => {
                   </div>
                 </div>
 
-                <Button
-                  className="w-full font-semibold"
+                <Button               
+                  className={`appearance-none w-full h-10 px-6 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all active:scale-95 border-2 focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:border-ring disabled:pointer-events-none disabled:opacity-50 ${isDark ? "bg-white text-black border-white hover:bg-white/90" : "bg-black text-white border-black hover:bg-black/90"}`}
                   onClick={handleAuth}
                   disabled={state.isLoading}
+                  aria-busy={state.isLoading}
                 >
-                  {state.isLoading
-                    ? "Cargando..."
-                    : state.selected === "login"
-                      ? "Iniciar Sesión"
-                      : "Crear Cuenta"}
+                  {state.isLoading ? (
+                    "Cargando..."
+                  ) : (
+                    <>
+                      {state.selected === "login" ? (
+                        <Lock className="h-4 w-4 mr-2" />
+                      ) : (
+                        <User className="h-4 w-4 mr-2" />
+                      )}
+                      {state.selected === "login"
+                        ? "Iniciar Sesión"
+                        : "Crear Cuenta"}
+                    </>
+                  )}
                 </Button>
 
                 <div className="flex items-center gap-4">
@@ -251,7 +291,7 @@ const Page = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full bg-transparent border-2 border-muted-foreground text-muted-foreground hover:bg-transparent"
                   disabled
                   aria-disabled
                   title="Autenticación con Google próximamente"
@@ -300,7 +340,9 @@ const Page = () => {
                 <button
                   type="button"
                   className="font-semibold text-primary hover:underline"
-                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "signup" })}
+                  onClick={() =>
+                    dispatch({ type: "SET_SELECTED", payload: "signup" })
+                  }
                 >
                   Regístrate aquí
                 </button>
@@ -311,7 +353,9 @@ const Page = () => {
                 <button
                   type="button"
                   className="font-semibold text-primary hover:underline"
-                  onClick={() => dispatch({ type: "SET_SELECTED", payload: "login" })}
+                  onClick={() =>
+                    dispatch({ type: "SET_SELECTED", payload: "login" })
+                  }
                 >
                   Inicia sesión
                 </button>

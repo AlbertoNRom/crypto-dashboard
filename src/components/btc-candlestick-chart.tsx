@@ -11,10 +11,8 @@ import { TrendingUp } from "lucide-react";
 import  { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Tipo para datos OHLC de CoinGecko (array de números)
-type CoinGeckoOHLCData = [number, number, number, number, number];
+type OHLCData = [number, number, number, number, number];
 
-// Tipo para datos de velas compatible con lightweight-charts
 interface CandlestickData {
   time: UTCTimestamp;
   open: number;
@@ -35,12 +33,11 @@ export const BTCCandlestickChart = () => {
   
   console.log('📊 Estado actual isLoading:', isLoading);
 
-  // Obtener datos reales de CoinGecko a través de nuestra API
   const fetchBitcoinData = async (): Promise<CandlestickData[]> => {
     try {
       console.log('🔄 Iniciando fetch de datos de Bitcoin...');
       const response = await fetch(
-        "/api/crypto/ohlc?coinId=bitcoin&vs_currency=usd&days=30"
+        "/api/crypto/ohlc?coinId=bitcoin&vs_currency=usd&days=150"
       );
 
       console.log('📡 Respuesta recibida:', response.status, response.statusText);
@@ -51,37 +48,30 @@ export const BTCCandlestickChart = () => {
         );
       }
 
-      const data: CoinGeckoOHLCData[] = await response.json();
-      console.log('📊 Datos recibidos:', data?.length, 'elementos');
-      console.log('🔍 Primer elemento:', data?.[0]);
+      const data:OHLCData[] = await response.json();
 
-      // Validar que los datos sean un array
+
       if (!Array.isArray(data) || data.length === 0) {
         throw new Error("Datos inválidos recibidos de CoinGecko");
       }
 
-      // Convertir y validar cada elemento
       const candlestickData = data
-        .filter((item: CoinGeckoOHLCData) => {
-          // Validar que cada elemento tenga 5 valores numéricos
+        .filter((item: OHLCData) => {
           return (
             Array.isArray(item) &&
             item.length === 5 &&
             item.every((val) => typeof val === "number" && !Number.isNaN(val))
           );
         })
-        .map((item: CoinGeckoOHLCData) => ({
-          time: Math.floor(item[0] / 1000) as UTCTimestamp, // Convertir de ms a segundos
+        .map((item: OHLCData) => ({
+          time: Math.floor(item[0] / 1000) as UTCTimestamp,
           open: Number(item[1].toFixed(2)),
           high: Number(item[2].toFixed(2)),
           low: Number(item[3].toFixed(2)),
           close: Number(item[4].toFixed(2)),
         }))
-        .sort((a, b) => a.time - b.time); // Ordenar por tiempo ascendente
+        .sort((a, b) => a.time - b.time);
 
-      console.log('✅ Datos procesados:', candlestickData.length, 'velas');
-      console.log('📈 Primera vela procesada:', candlestickData[0]);
-      console.log('📈 Última vela procesada:', candlestickData[candlestickData.length - 1]);
 
       if (candlestickData.length === 0) {
         throw new Error("No se pudieron procesar los datos de CoinGecko");
@@ -132,44 +122,26 @@ export const BTCCandlestickChart = () => {
   };
 
   useEffect(() => {
-    console.log('🚀 useEffect del BTCCandlestickChart ejecutándose');
     let isMounted = true;
     let chart: IChartApi | null = null;
 
     const initChart = async () => {
       try {
-        console.log('🎯 Iniciando inicialización del gráfico...');
-        console.log('📊 Estado inicial isLoading:', true);
         setIsLoading(true);
-
-        // Obtener datos primero
-        console.log('🔄 Obteniendo datos de Bitcoin...');
         const data = await fetchBitcoinData();
-        console.log('📊 Datos obtenidos, configurando serie...');
 
-        // Verificar si el componente sigue montado antes de continuar
         if (!isMounted) {
-          console.log('⚠️ Componente desmontado durante fetch, cancelando');
           return;
         }
 
-        // Ahora cambiar isLoading a false para que se renderice el contenedor
-        console.log('📊 Cambiando isLoading a false para renderizar contenedor');
         setIsLoading(false);
-
-        // Esperar un tick para que React renderice el contenedor
+  
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        // Verificar que el contenedor ahora existe
         if (!chartContainerRef.current) {
-          console.log('❌ chartContainerRef.current sigue siendo null después de renderizar');
           return;
         }
 
-        console.log('✅ chartContainerRef.current existe, creando gráfico');
-
-        // Crear el gráfico
-        console.log('📊 Creando instancia del gráfico...');
         chart = createChart(chartContainerRef.current!, {
           layout: {
             background: { type: ColorType.Solid, color: "transparent" },
@@ -200,7 +172,6 @@ export const BTCCandlestickChart = () => {
           },
         });
 
-        // Crear la serie de velas
         const candlestickSeries = chart.addSeries(CandlestickSeries, {
           upColor: "#00ff88",
           downColor: "#ff4444",
@@ -210,19 +181,12 @@ export const BTCCandlestickChart = () => {
           wickUpColor: "#00ff88",
         });
 
-        // Los datos ya fueron obtenidos anteriormente
-
-        // Verificar si el componente sigue montado antes de actualizar
         if (!isMounted) {
-          console.log('⚠️ Componente desmontado, cancelando actualización');
           return;
         }
 
-        console.log('📈 Estableciendo datos en la serie del gráfico...');
         candlestickSeries.setData(data);
-        console.log('✅ Datos establecidos correctamente');
 
-        // Establecer precio actual y cambio
         if (data.length > 1) {
           const latest = data[data.length - 1];
           const previous = data[data.length - 2];
@@ -235,17 +199,11 @@ export const BTCCandlestickChart = () => {
         chartRef.current = chart;
         seriesRef.current = candlestickSeries;
 
-        console.log('🔍 Verificando si el componente sigue montado:', isMounted);
-        if (isMounted) {
-          console.log('🎉 Gráfico inicializado correctamente, ocultando loading...');
-          console.log('📊 Cambiando isLoading de true a false');
+        if (isMounted) {         
           setIsLoading(false);
-          console.log('✅ setIsLoading(false) ejecutado');
-        } else {
-          console.log('⚠️ Componente desmontado, no se oculta loading');
         }
 
-        // Manejar redimensionamiento
+
         const handleResize = () => {
           if (chartContainerRef.current && chart) {
             chart.applyOptions({
@@ -256,31 +214,22 @@ export const BTCCandlestickChart = () => {
 
         window.addEventListener("resize", handleResize);
 
-        // Función de limpieza
         return () => {
           window.removeEventListener("resize", handleResize);
         };
-      } catch (error) {
-        console.error("❌ Error inicializando el gráfico:", error);
-        console.log('🔍 Error capturado, isMounted:', isMounted);
+      } catch (_error) {
+        
         if (isMounted) {
-          console.log('📊 Error: Cambiando isLoading a false debido al error');
           setIsLoading(false);
-          console.log('✅ Error: setIsLoading(false) ejecutado');
-        } else {
-          console.log('⚠️ Error: Componente desmontado, no se cambia isLoading');
         }
       }
     };
 
-    // Ejecutar la inicialización del gráfico
-    console.log('🔥 Ejecutando initChart desde useEffect');
     initChart().catch((error) => {
       console.error('❌ Error en initChart:', error);
       setIsLoading(false);
     });
 
-    // Función de limpieza del useEffect
     return () => {
       isMounted = false;
       if (chart) {
@@ -295,7 +244,6 @@ export const BTCCandlestickChart = () => {
   return (
     <Card className="w-full border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 hover:border-primary/40 transition-all duration-500 group shadow-xl hover:shadow-2xl hover:shadow-primary/20 backdrop-blur-sm">
       <CardHeader className="pb-6 relative overflow-hidden">
-        {/* Background Pattern */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-50"></div>
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
 
@@ -310,7 +258,7 @@ export const BTCCandlestickChart = () => {
                 Bitcoin (BTC)
               </CardTitle>
               <p className="text-sm text-muted-foreground font-medium">
-                Análisis Técnico Profesional • 30 Días
+                Análisis Técnico Profesional • 150 Días
               </p>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
