@@ -128,7 +128,7 @@ export const AppNavbar = () => {
           </div>
 
           {/* Cursor effect switch */}
-          <div className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-primary/10 transition-all duration-300">
+          <div className="flex items-center gap-2 sm:gap-3 px-1 py-0.5 sm:px-2 sm:py-1 rounded-md hover:bg-primary/10 transition-all duration-300">
             <label
               htmlFor="cursor-toggle"
               id="cursor-toggle-label"
@@ -141,7 +141,7 @@ export const AppNavbar = () => {
               aria-label="Cursor"
               checked={cursorEnabled}
               onCheckedChange={(v) => setCursorEnabled(Boolean(v))}
-              className="h-5 w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
+              className="h-4 w-8 sm:h-5 sm:w-9 border border-input data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80"
             />
           </div>
 
