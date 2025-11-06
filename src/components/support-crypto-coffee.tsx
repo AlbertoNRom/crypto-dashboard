@@ -1,6 +1,6 @@
 "use client";
 
-import { Coffee, ExternalLink } from "lucide-react";
+import { Coffee, ExternalLink, ChevronDown, QrCode } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +43,7 @@ export const SupportCryptoCoffee = ({
                 size="sm"
                 onClick={() => window.open(link!, "_blank", "noopener,noreferrer")}
               >
-                <ExternalLink className="h-4 w-4 mr-1" aria-hidden /> Abrir página de apoyo
+                <ExternalLink className="h-4 w-4 mr-1" aria-hidden /> Apoyar ahora
               </Button>
             </div>
             <div className="mt-2 text-xs text-muted-foreground">Moneda aceptada: {currency}</div>
@@ -54,9 +54,19 @@ export const SupportCryptoCoffee = ({
           className="rounded-lg border border-border/50 bg-muted/20"
           onToggle={(e) => setQrOpen(e.currentTarget.open)}
         >
-          <summary className="flex items-center justify-between cursor-pointer list-none p-3">
-            <span className="text-sm text-muted-foreground">QR para escanear</span>
-            <span className="text-xs text-muted-foreground">{qrOpen ? "Ocultar" : "Mostrar"}</span>
+          <summary
+            className="flex items-center justify-between cursor-pointer list-none p-3"
+          >
+            <span className="text-sm text-muted-foreground inline-flex items-center gap-2">
+              <QrCode className="h-4 w-4 text-primary" aria-hidden /> QR para escanear
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              {qrOpen ? "Ocultar QR" : "Mostrar QR"}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${qrOpen ? "rotate-180" : "rotate-0"}`}
+                aria-hidden
+              />
+            </span>
           </summary>
           <div className="p-3 pt-0">
             {qrSrc ? (
@@ -64,9 +74,9 @@ export const SupportCryptoCoffee = ({
                 <Image
                   src={qrSrc}
                   alt="Código QR para enviar tu crypto café"
-                  width={200}
-                  height={200}
-                  className="rounded-lg border border-border/50"
+                  width={300}
+                  height={300}
+                  className="rounded-lg border border-border/50 shadow-md"
                 />
               </div>
             ) : (
