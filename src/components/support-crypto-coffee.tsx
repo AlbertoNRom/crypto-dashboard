@@ -2,6 +2,7 @@
 
 import { Coffee, ExternalLink } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +18,7 @@ export const SupportCryptoCoffee = ({
   qrSrc,
   link,
 }: SupportCryptoCoffeeProps) => {
-  // Componente simplificado: sin selector de importe.
+  const [qrOpen, setQrOpen] = useState(false);
 
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 group shadow-lg">
@@ -49,24 +50,32 @@ export const SupportCryptoCoffee = ({
           </div>
         )}
 
-        <div className="rounded-lg border border-border/50 p-3 bg-muted/20">
-          <div className="text-sm text-muted-foreground mb-2">Escanea el QR con tu wallet</div>
-          {qrSrc ? (
-            <div className="flex items-center justify-center">
-              <Image
-                src={qrSrc}
-                alt="Código QR para enviar tu crypto café"
-                width={200}
-                height={200}
-                className="rounded-lg border border-border/50"
-              />
-            </div>
-          ) : (
-            <div className="h-48 rounded-lg border border-dashed border-border/50 bg-card/50 flex items-center justify-center text-xs text-muted-foreground">
-              Añade la prop <code className="font-mono">qrSrc</code>
-            </div>
-          )}
-        </div>
+        <details
+          className="rounded-lg border border-border/50 bg-muted/20"
+          onToggle={(e) => setQrOpen(e.currentTarget.open)}
+        >
+          <summary className="flex items-center justify-between cursor-pointer list-none p-3">
+            <span className="text-sm text-muted-foreground">QR para escanear</span>
+            <span className="text-xs text-muted-foreground">{qrOpen ? "Ocultar" : "Mostrar"}</span>
+          </summary>
+          <div className="p-3 pt-0">
+            {qrSrc ? (
+              <div className="flex items-center justify-center">
+                <Image
+                  src={qrSrc}
+                  alt="Código QR para enviar tu crypto café"
+                  width={200}
+                  height={200}
+                  className="rounded-lg border border-border/50"
+                />
+              </div>
+            ) : (
+              <div className="h-48 rounded-lg border border-dashed border-border/50 bg-card/50 flex items-center justify-center text-xs text-muted-foreground">
+                Añade la prop <code className="font-mono">qrSrc</code>
+              </div>
+            )}
+          </div>
+        </details>
 
         <div className="flex items-center justify-center">
           <div className="text-xs text-muted-foreground">¡Gracias por tu apoyo!</div>
