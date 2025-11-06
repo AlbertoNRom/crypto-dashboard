@@ -52,7 +52,7 @@ export const HomeHeroMotion = () => {
                 className="h-4 w-4 mr-2 text-white dark:text-yellow-400 animate-spin"
                 style={{ animationDuration: "3s" }}
               />
-              Nuevo: Integración con Stripe para donaciones
+            Nuevo: Botón de apoyo (Buy Me a Coffee)
             </Badge>
           </div>
 

@@ -88,7 +88,6 @@ export const donations = pgTable("donations", {
   email: text("email"),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   currency: text("currency").default("USDC").notNull(),
-  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
   status: text("status", { enum: ["pending", "completed", "failed"] })
     .default("pending")
     .notNull(),

@@ -5,6 +5,7 @@ import { BTCCandlestickChart } from "@/components/btc-candlestick-chart";
 import { CryptoPricesSection } from "@/components/crypto-prices-section";
 import { HomeHeroMotion } from "@/components/home-hero-motion";
 import { AppNavbar } from "@/components/navbar";
+import { SupportCryptoCoffee } from "@/components/support-crypto-coffee";
 
 export const metadata: Metadata = {
   title: "CryptoDash - Gestiona tu Portfolio Crypto",
@@ -44,6 +45,15 @@ export default function Home() {
 
           <div className="max-w-5xl mx-auto">
             <BTCCandlestickChart />
+          </div>
+        </div>
+      </section>
+
+      {/* Support - Crypto Coffee */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto">
+            <SupportCryptoCoffee link="https://bmacc.app/tip/albertonr" currency="USDT" qrSrc="/bmacc.png" />
           </div>
         </div>
       </section>

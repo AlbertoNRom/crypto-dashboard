@@ -1,6 +1,6 @@
 # CryptoDash
 
-Panel de criptomonedas construido con Next.js, Tailwind y Lightweight Charts. Incluye gráfico OHLC de Bitcoin, listado de mercados en tiempo real, autenticación con Supabase y flujo de donaciones con Stripe.
+Panel de criptomonedas construido con Next.js, Tailwind y Lightweight Charts. Incluye gráfico OHLC de Bitcoin, listado de mercados en tiempo real y autenticación con Supabase.
 
 ## Características
 
@@ -8,14 +8,14 @@ Panel de criptomonedas construido con Next.js, Tailwind y Lightweight Charts. In
 - Listado de criptomonedas top con datos de CoinGecko.
 - Tema oscuro/claro y UI moderna con Radix + Shadcn UI.
 - Autenticación (Supabase) y ejemplo de OAuth.
-- Donaciones vía Stripe Checkout (server route y guardado en DB con Drizzle).
+- Botón de apoyo con Buy Me a Coffee (snippet embebible en el cliente).
 
 ## Requisitos
 
 - Node.js 18+ (recomendado 20+)
 - npm, pnpm o yarn
 - (Opcional) Cuenta de Supabase para auth
-- (Opcional) Claves de Stripe para donaciones
+- (Opcional) Buy Me a Coffee (snippet cliente)
 - (Opcional) Base de datos Postgres para Drizzle
 
 ## Instalación
@@ -35,9 +35,8 @@ Crea un archivo `.env.local` en la raíz del proyecto con las variables necesari
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Stripe (requerido si usas donaciones)
-STRIPE_SECRET_KEY=sk_test_xxx
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
+# Buy Me a Coffee
+# No requiere variables de entorno; añade tu snippet en el cliente
 
 # CoinGecko (opcional, para Pro API en cliente)
 NEXT_PUBLIC_CG_API_KEY=your_cg_pro_key
@@ -48,7 +47,7 @@ DATABASE_URL=postgres://user:pass@host:5432/dbname
 
 Notas:
 - Las rutas de API de CoinGecko incluidas usan la API pública y no requieren clave.
-- Si falta alguna variable de Stripe o Supabase y accedes a funcionalidades que la usan, el proyecto lanzará errores explicando qué falta.
+- Si falta alguna variable de Supabase y accedes a funcionalidades que la usan, el proyecto lanzará errores explicando qué falta.
 
 ## Desarrollo
 
@@ -70,9 +69,7 @@ Abre `http://localhost:3000` en tu navegador. Si el puerto 3000 está ocupado, N
   - Parámetros: `coinId` (por defecto `bitcoin`), `vs_currency` (por defecto `usd`), `days` (por defecto `30`)
   - Ejemplo: `curl "http://localhost:3000/api/crypto/ohlc?coinId=bitcoin&vs_currency=usd&days=30"`
 
-- `POST /api/create-payment-intent` (Stripe)
-  - Body JSON: `{ "amount": 10, "currency": "usd", "message": "Gracias!" }`
-  - Requiere `STRIPE_SECRET_KEY` y `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` configurados.
+  
 
 ## Pruebas (Playwright)
 
@@ -101,7 +98,7 @@ npm run test:headed # con navegador visible
 
 - Puerto ocupado: si `3000` está en uso, se arrancará en `3001`.
 - Playwright: error de “Missing browser executable” → `npx playwright install`.
-- Stripe: faltan variables → añade `STRIPE_SECRET_KEY` y `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
+ 
 - Supabase: faltan variables → añade `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - CoinGecko: si la API pública limita o falla, el gráfico usa datos de respaldo.
 
