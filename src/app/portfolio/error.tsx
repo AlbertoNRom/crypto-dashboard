@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { AppNavbar } from "@/components/navbar";
 
@@ -14,7 +14,9 @@ export default function PortfolioError({
       <AppNavbar />
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="max-w-md w-full text-center">
-          <h2 className="text-xl font-semibold text-foreground mb-2">Algo salió mal</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-2">
+            Algo salió mal
+          </h2>
           <p className="text-sm text-muted-foreground mb-4">
             {error.message || "No se pudo cargar el portfolio."}
           </p>
